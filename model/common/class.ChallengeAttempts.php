@@ -40,35 +40,53 @@ class ChallengeAttempts {
 	public $count;//total_attempts;
 	//public $dummy;//dummy class var for hacks
 
+	/**
+	 * Adds a challenge attempt with timestamp
+	 * and increases the total counter of tries for the challenge
+	 * @returns: true on succesful update
+	 * 			 false on error
+	 */
 	public static function addChallengeAttempt($user_id,$challenge_id,$status){
 		global $db;
+
 		$time = date("Y-m-d H:i:s");
 		$params=array(':user_id' => $user_id,
-				':challenge_id' => $challenge_id,
-				':time' => $time,
-				':status' => $status
-			     );
+					  ':challenge_id' => $challenge_id,
+					  ':time' => $time,
+					  ':status' => $status);
 		$sql="INSERT INTO challenge_attempts(user_id,challenge_id,time,status)";
 		$sql .= "VALUES (:user_id,:challenge_id,:time,:status)";
 		$query = $db->query($sql,$params);
 		if ($db->affectedRows($query)) {
-			self::increaseChallengeAttemptCount($user_id,$challenge_id);
-			return true;
+			return self::increaseChallengeAttemptCount($user_id,
+													   $challenge_id,
+													   $class_id);
 		} else {
 			return false;
 		}
 	}
 
-	public static function increaseChallengeAttemptCount($user_id, $challenge_id){
+	/**
+	 * Adds another challenge attempt or increases the existing ones
+	 */
+	public static function increaseChallengeAttemptCount($user_id,
+														 $challenge_id,
+														 $class_id){
 		global $db;
 		$params=array(':user_id' => $user_id,
-			      ':challenge_id' => $challenge_id,
-			      ':tries' => 1
+					  ':challenge_id' => $challenge_id,
+					  ':tries' => 1
 			     );
-		$sql = "INSERT INTO challenge_attempt_count (user_id, challenge_id, tries)
-			VALUES (:user_id, :challenge_id, :tries)
-			ON DUPLICATE KEY UPDATE tries = tries + 1";
+		$sql = "INSERT INTO challenge_attempt_count
+				(user_id, challenge_id, class_id, tries)
+				VALUES (:user_id, :challenge_id, :class_id, :tries)
+				ON DUPLICATE KEY UPDATE tries = tries + 1";
 		$query = $db->query($sql, $params);
+		if ($db->affectedRows($query)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public static function deleteChallengeAttemptByUser($user_id){
@@ -122,14 +140,18 @@ class ChallengeAttempts {
 		return $result_array;
 	}
 
-	public static function isChallengeCleared($user_id, $challenge_id) {
+	public static function isChallengeCleared($user_id, $challenge_id, $class_id = '*') {
 		global $db;
 		$params = array(
 			':user_id' => $user_id,
-			':challenge_id' => $challenge_id
+			':challenge_id' => $challenge_id,
+			':class_id' => $class_id
 		);
-		$sql = "SELECT * FROM challenge_attempts WHERE user_id = :user_id AND ";
-		$sql .= "challenge_id = :challenge_id AND status = 1;";
+		$sql = "SELECT * FROM challenge_attempts
+				WHERE user_id = :user_id
+				AND	challenge_id = :challenge_id
+				AND class_id = :class_id
+				AND status = 1;";
 		$query = $db->query($sql, $params);
 		if ($db->numRows($query)) {
 			return true;
@@ -187,6 +209,60 @@ class ChallengeAttempts {
 		return !empty($result_array)?$result_array:false;
 	}
 */
+
+	/**
+	 *  Returns the first try the user made for a particular challenge
+	 *  for a class or false if the user hasn't tried the challenge
+	 */
+	public static function getUserFirstChallengeAttempt($user_id, $challenge_id, $class_id){
+		global $db;
+
+		$params = array(':user_id' => $user_id,
+						':challenge_id' => $challenge_id,
+						':class_id' => $class_id);
+		$sql = ' SELECT * FROM challenge_attempts
+					WHERE user_id = :user_id
+					AND challenge_id = :challenge_id
+					AND class_id = :class_id
+					ORDER BY time ASC LIMIT 1;';
+		$result_array = self::findBySQL($sql, $params);
+		return !empty($result_array)?array_shift($result_array):false;
+	}
+	/**
+	 *  Returns the last try the user made for a particular challenge
+	 *  for a class or false if the user hasn't tried the challenge
+	 */
+	public static function getUserLastChallengeAttempt($user_id, $challenge_id, $class_id){
+		global $db;
+
+		$params = array(':user_id' => $user_id,
+						':challenge_id' => $challenge_id,
+						':class_id' => $class_id);
+		$sql = ' SELECT * FROM challenge_attempts
+					WHERE user_id = :user_id
+					AND challenge_id = :challenge_id
+					AND class_id = :class_id
+					ORDER BY time DESC LIMIT 1;';
+		$result_array = self::findBySQL($sql, $params);
+		return !empty($result_array)?array_shift($result_array):false;
+	}
+	/**
+	 * Returns the user's tries the challenge
+	 */
+	public static function getUserTriesForChallenge($user_id, $challenge_id, $class_id){
+		global $db;
+
+		$params = array(':user_id' => $user_id,
+						':challenge_id' => $challenge_id,
+						':class_id' => $class_id);
+		$sql = ' SELECT tries FROM  challenge_attempt_count
+					WHERE user_id = :user_id
+					AND challenge_id = :challenge_id
+					AND class_id = :class_id
+					LIMIT 1;';
+		$result_array = self::findBySQL($sql, $params);
+		return !empty($result_array)?array_shift($result_array):false;
+	}
 	private static function findBySQL($sql,$params=NULL) {
 		global $db;
 		$result_set=$db->query($sql,$params);
@@ -230,7 +306,25 @@ class ChallengeAttempts {
 		}
 		return $result_array;
 	}
+	/**
+	 * Returns how many challenges have been solved by the user
+	 * with id $user_id on the first try.
+	 * */
+	public static function getCountOfFirstTrySolves($user_id, $class_id){
+		global $db;
 
+		$params = array(':user_id' => $user_id);
+		$sql = "SELECT count(*)
+				FROM challenge_attempt_count,  challenge_attempts
+				WHERE challenge_attempt_count.user_id = :user_id
+				AND challenge_attempt_count.tries = 1
+				AND challenge_attempts.user_id = :user_id
+				AND challenge_attempts.challenge_id = challenge_attempt_count.challenge_id
+				AND challenge_attempts.status = 1;
+																	";
+		$result = self::findBySQL($sql, $params);
+		return !empty($result_array)?array_shift($result_array):0;
+	}
 	public static function getClasswiseRankings($class_id) {
 		global $db;
 

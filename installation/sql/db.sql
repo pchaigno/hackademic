@@ -221,4 +221,35 @@ CREATE TABLE IF NOT EXISTS `user_has_challenge_token` (
   PRIMARY KEY (`id`)
 );
 
+--
+-- Table structure for table `challenge_scoring`
+--
+DROP TABLE IF EXISTS `challenge_scoring`;
+CREATE TABLE IF NOT EXISTS `challenge_scoring` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `challenge_id` int(11) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `attempt_cap` int(11) NOT NULL DEFAULT '0',/* In how many attempts the user has to solve the challenge*/
+  `attempt_cap_penalty` int(11) NOT NULL DEFAULT '0',/* If the cap is exceeded what's the point penalty?*/
+  `time_between_first_and_last_attempt` int(11) NOT NULL DEFAULT '0',/* In how much physical time the user has to solve the challenge */
+  `time_penalty` int(11) NOT NULL DEFAULT '0', /* Penalty if the time is exceeded*/
+  `time_reset_limit_seconds` int(11) NOT NULL DEFAULT '0', /* At which point do we think that the user has abandoned the challenge? */
+  `request_frequency` int(11) NOT NULL DEFAULT '0', /* How many request/sec == red flag that the user is spamming or using autotools */
+  `request_frequency_penalty` int(11) NOT NULL DEFAULT '0', /* penalty if the limit is exceeded */
+  `experimentation_bonus` int(11) NOT NULL DEFAULT '0', /* If the user has already solved the challenge but he keeps trying to solve it === experimenting does (s)he get a bonus?*/
+  `multiple_solution_bonus` int(11) NOT NULL DEFAULT '0', /* if there are many solutions and the user gets more than one what's the bonus? */
+  `banned_user_agents` longtext CHARACTER SET ascii COLLATE ascii_bin, /* some user agents that should not appear in the ua string*/
+  `base_score` int(11) NOT NULL DEFAULT '5', /* The score that each student gets if s(he) does not get any penalties or bonuses */
+  PRIMARY KEY (`id`),
+  KEY `challenge_id` (`challenge_id`,`class_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `challenge_scoring`
+--
+/* The default values for everything */
+INSERT INTO `challenge_scoring` (`id`, `challenge_id`, `class_id`, `attempt_cap`, `attempt_cap_penalty`, `time_between_first_and_last_attempt`, `time_penalty`, `time_reset_limit_seconds`, `request_frequency`, `request_frequency_penalty`, `experimentation_bonus`, `multiple_solution_bonus`, `banned_user_agents`) VALUES
+(1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Indy Library,\nlibwww-perl,\ncurl,\nnikto,\nw3af');
+
+
 SHOW WARNINGS;
