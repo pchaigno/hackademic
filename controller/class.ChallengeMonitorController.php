@@ -39,6 +39,16 @@ require_once(HACKADEMIC_PATH."admin/model/class.ClassChallenges.php");
 require_once(HACKADEMIC_PATH."model/common/class.UserHasChallengeToken.php");
 require_once(HACKADEMIC_PATH."controller/class.HackademicController.php");
 
+define('EXPERIMENTATION_BONUS_ID', "experimentation_bonus");
+define('TOTAL_ATTEMPT_PENALTY_ID', "total_attempt_cap_penalty");
+define('TIME_LIMIT_PENALTY_ID', "time_limit_penalty");
+define('RPS_PENALTY_ID', "request_per_second_penalty");
+define('UA_PENALTY_ID', "banned_user_agent_penalty");
+define('MULT_SOL_BONUS_ID', "multiple_solution_bonus");
+define('TIME_LIMIT_PENALTY_ID', "time_limit_penalty");
+define('TOTAL_ATTEMPT_PENALTY_ID', "total_attempt_penalty");
+define('FTS_PENALTY_ID', "first_try_penalty");
+
 class ChallengeMonitorController {
 
     public function go() {
@@ -191,7 +201,7 @@ class ChallengeMonitorController {
 			$fts_penalty = $_SESSION['rules']['penalty_for_many_first_try_solves'];
 
 			$current_score = UserScore::get_scores_for_user_class_challenge($user_id, $challenge_id, $class_id);
-			if( $current_score->points == 0)
+			if( $current_score->points == 0 && $current_score->penalties_bonuses == NULL)
 				$current_score->points = $base_score;
 
 			$_SESSION['current_score'] = (array)$current_score;
@@ -209,9 +219,8 @@ class ChallengeMonitorController {
 			return;
 
 		}elseif ($status == 0){
-/* TODO MUST CHECK IF PENALTIES APPLY!!!!*/
 			if (ChallengeAttempts::isChallengeCleared($user_id, $challenge_id, $class_id)){
-				if (strpos($current_score,EXPERIMENTATION_BONUS_ID) == false){
+				if (strpos($current_score,EXPERIMENTATION_BONUS_ID) == false && $exp_bonus > 0){
 					/* apply experimentation bonus*/
 					$current_score->poins += $exp_bonus;
 					$current_score->penalties_bonuses .= EXPERIMENTATION_BONUS_ID .= ",";
@@ -220,7 +229,7 @@ class ChallengeMonitorController {
 
 			if ($_SESSION['total_attempt_count'] > $attempt_cap){
 				/* apply total attempt penalty*/
-				if(strpos($current_score->penalties_bonuses,TOTAL_ATTEMPT_PENALTY_ID) == false){
+				if(strpos($current_score->penalties_bonuses,TOTAL_ATTEMPT_PENALTY_ID) == false && $attempt_cap_penalty > 0){
 					$current_score->poins -= $attempt_cap_penalty;
 					$current_score->penalties_bonuses .= TOTAL_ATTEMPT_PENALTY_ID .= ",";
 				}
@@ -232,7 +241,7 @@ class ChallengeMonitorController {
 				$t_since_first = 0;
 			if ($t_since_first >= $t_limit){
 				/* apply total time penalty */
-				if(strpos($current_score,TIME_LIMIT_PENALTY_ID) == false){
+				if(strpos($current_score,TIME_LIMIT_PENALTY_ID) == false && $time_penalty > 0){
 					$current_score->poins -= $time_penalty;
 					$current_score->penalties_bonuses .= TIME_LIMIT_PENALTY_ID .= ",";
 				}
@@ -241,7 +250,7 @@ class ChallengeMonitorController {
 			if ($idff == 1000000){
 				if ($_SESSION['rps_attempt_count'] >= $rps_limit){
 					/* apply requests per second penalty*/
-					if(strpos($current_score,RPS_PENALTY_ID) == false){
+					if(strpos($current_score,RPS_PENALTY_ID) == false && $rps_penalty > 0){
 						$current_score->poins -= $rps_penalty;
 						$current_score->penalties_bonuses .= RPS_PENALTY_ID .= ",";
 					}
@@ -255,7 +264,7 @@ class ChallengeMonitorController {
 			$ua_check = strpos($banned_user_agents, $_SERVER['HTTP_USER_AGENT']);
 			if ($ua_check != false){
 				/* apply user agent penalty*/
-				if(strpos($current_score,UA_PENALTY_ID) == false){
+				if(strpos($current_score,UA_PENALTY_ID) == false && $banned_ua_penalty > 0){
 					$current_score->poins -= $banned_ua_penalty;
 					$current_score->penalties_bonuses .= UA_PENALTY_ID .= ",";
 				}
@@ -265,7 +274,7 @@ class ChallengeMonitorController {
 
 			if (ChallengeAttempts::isChallengeCleared($user_id, $challenge_id, $class_id)){
 				/* apply multiple solutions bonus*/
-				if(strpos($current_score,MULT_SOL_BONUS_ID) == false){
+				if(strpos($current_score,MULT_SOL_BONUS_ID) == false && $mult_sol_bonus > 0){
 					$current_score->poins += $mult_sol_bonus;
 					$current_score->penalties_bonuses .= MULT_SOL_BONUS_ID .= ",";
 				}
@@ -280,21 +289,21 @@ class ChallengeMonitorController {
 
 				if ($t_since_first >= $t_limit){
 					/* apply time limit penalty */
-					if(strpos($current_score,TIME_LIMIT_PENALTY_ID) == false){
+					if(strpos($current_score,TIME_LIMIT_PENALTY_ID) == false && $time_penalty > 0){
 						$current_score->poins -= $time_penalty;
 						$current_score->penalties_bonuses .= TIME_LIMIT_PENALTY_ID .= ",";
 					}
 				}
 				if ( 1 + $total_count >= $attempt_cap){
 					/* apply total attempt penalty*/
-					if(strpos($current_score->penalties_bonuses,TOTAL_ATTEMPT_PENALTY_ID) == false){
+					if(strpos($current_score->penalties_bonuses,TOTAL_ATTEMPT_PENALTY_ID) == false && $attempt_cap > 0){
 						$current_score->poins -= $attempt_cap_penalty;
 						$current_score->penalties_bonuses .= TOTAL_ATTEMPT_PENALTY_ID .= ",";
 					}
 				}
 				if(ChallengeAttempts::getCountOfFirstTrySolves($user_id, $class_id) > $first_try_limit){
 					/* apply cheater penalty */
-					if(strpos($current_score->penalties_bonuses,FTS_PENALTY_ID) == false){
+					if(strpos($current_score->penalties_bonuses,FTS_PENALTY_ID) == false && $fts_penalty > 0){
 						$current_score->poins -= $fts_penalty;
 						$current_score->penalties_bonuses .= FTS_PENALTY_ID .= ",";
 					}

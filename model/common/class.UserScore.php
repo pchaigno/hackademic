@@ -44,7 +44,9 @@ class UserScore{
 	 * Adds a score entry for a user solving the specific challenge
 	 * this function is called each time the user tries the challenge
 	 * and it's updated with the bonuses or penalties the user has*/
-	public static function add_user_score( $user_id, $challenge_id, $class_id, $points, $penalties_bonuses){
+	public static function add_user_score( $user_id, $challenge_id,
+																				 $class_id, $points,
+																				 $penalties_bonuses){
 		global $db;
 		$params=array(':user_id'=>$user_id, ':challenge_id'=>$challenge_id,
 									':class_id'=>$class_id,	':points'=>$points,
@@ -89,7 +91,7 @@ class UserScore{
 		} else {
 			return false;
 		}
-		}
+	}
   /**
 	 * Returns the score with id $id
 	 */
@@ -100,9 +102,6 @@ class UserScore{
 		$result_array=self::findBySQL($sql,$params);
 		return !empty($result_array)?array_shift($result_array):false;
 	}
-
-
-		}
 	/**
 	 * Returns the score information for users with id = user_id
 	 * or false if the id does not exist
@@ -135,6 +134,20 @@ class UserScore{
 		$result_array=self::findBySQL($sql,$params);
 		return !empty($result_array)?array_shift($result_array):false;
 		}
+		/**
+	 * Returns the score information for the specific user in
+	 * specific class for all challenges
+	 */
+	public static function get_scores_for_user_class($user_id, $class_id){
+		global $db;
+		$params = array (':user_id' => $user_id,
+										 ':class_id' => $class_id);
+		$sql = "SELECT * FROM user_score
+						WHERE user_id= :user_id
+						AND class_id= :class_id";
+		$result_array=self::findBySQL($sql,$params);
+		return !empty($result_array)?array_shift($result_array):false;
+	}
 	/**
 	 * Returns the score information for the specific user in
 	 * the specific class for the specific challenge
@@ -151,7 +164,6 @@ class UserScore{
 		$result_array=self::findBySQL($sql,$params);
 		return !empty($result_array)?array_shift($result_array):false;
 	}
-
 	public static function instantiate($record) {
 		$object=new self;
 		foreach($record as $attribute=>$value) {
@@ -166,5 +178,15 @@ class UserScore{
 		$object_vars=get_object_vars($this);
 		return array_key_exists($attribute,$object_vars);
 	}
+		private static function findBySQL($sql,$params=NULL) {
+		global $db;
+		$result_set=$db->query($sql,$params);
+		$object_array=array();
+		while($row=$db->fetchArray($result_set)) {
+			$object_array[]=self::instantiate($row);
+		}
+		return $object_array;
+	}
+
 }
  ?>

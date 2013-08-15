@@ -42,20 +42,20 @@ class ScoringRuleBackend extends ScoringRule{
 											$time_penalty, $time_reset_limit_seconds,
 											$request_frequency,	$request_frequency_penalty,
 											$experimentation_bonus,	$multiple_solution_bonus,
-											$banned_user_agents, $base_score;){
+											$banned_user_agents, $base_score){
 
 
 	}
 	/**
 	 * Updates an existing rule
 	 */
-	public static function update_scoring_rule($challenge_id, $class_id,
+	public static function update_scoring_rule($id, $challenge_id, $class_id,
 											   $attempt_cap, $attempt_cap_penalty,
 											   $time_between_first_and_last_attempt,
 											   $time_penalty, $time_reset_limit_seconds,
 											   $request_frequency,	$request_frequency_penalty,
 											   $experimentation_bonus,	$multiple_solution_bonus,
-											   $banned_user_agents, $base_score;){
+											   $banned_user_agents, $base_score){
 
 
 	}

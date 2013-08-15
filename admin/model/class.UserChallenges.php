@@ -38,8 +38,10 @@ class UserChallenges {
 	public $pkg_name;
 	public $availability;
 
-	/*@returns: array
- * Get all challenges the use can solve*/
+	/**
+	 * @returns: array
+	 * Get all challenges the use can solve
+   */
 	public static function getChallengesOfUser($user_id) {
 			global $db;
 			$params=array(':user_id' => $user_id);

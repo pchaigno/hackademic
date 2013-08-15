@@ -30,13 +30,15 @@
         <tr>
             <th>Username</th>
             <th>Challenges Cleared</th>
-			<th>Rank</th>
+						<th>Rank</th>
+						<th>Total Points</th>
         </tr>
     {foreach from=$rankings item=foo}
         <tr>
             <td>{$foo['username']}</a></td>
             <td>{$foo['count']}</td>
-			<td>{$foo['rank']}</td>
+						<td>{$foo['rank']}</td>
+						<td>{$foo['score']}</td>
         </tr>
     {/foreach}
     </table>

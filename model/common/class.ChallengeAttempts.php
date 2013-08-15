@@ -159,18 +159,18 @@ class ChallengeAttempts {
 			return false;
 		}
 	}
-	public static function getUserProgress($user_id) {
+	public static function getUserProgress($user_id, $class_id) {
 		global $db;
-		$params = array(':user_id' => $user_id );
+		$params = array(':user_id' => $user_id, ':class_id' => $class_id );
 
 		/*Count the attempts for all challenges*/
 		$sql = "SELECT challenge_id, count(*) as count FROM challenge_attempts
-				WHERE user_id = :user_id GROUP BY challenge_id;";
+				WHERE user_id = :user_id AND class_id = :class_id GROUP BY challenge_id;";
 		$result_array = self::findBySQL($sql,$params);
 
 		/* Get more data for the completed ones*/
 		$sql2 = "SELECT DISTINCT challenge_id, time FROM challenge_attempts
-				 WHERE user_id = :user_id AND status = 1;";
+				 WHERE user_id = :user_id AND class_id = :class_id AND status = 1;";
 		$result_2 = self::findBySQL($sql2,$params);
 
 		//var_dump($result_array);echo'</p> 2:</p>';var_dump($result_2);echo'</p>';
@@ -332,10 +332,13 @@ class ChallengeAttempts {
 
 		//get users belonging to class who have tried challenges belonging to class
 		$users = "SELECT DISTINCT class_memberships.user_id, class_challenges.challenge_id
-				FROM class_memberships, class_challenges
-				WHERE class_memberships.class_id = class_challenges.class_id AND
-				class_challenges.class_id = :class_id AND user_id IN (SELECT user_id FROM challenge_attempts WHERE
-				challenge_attempts.user_id =  class_memberships.user_id AND challenge_attempts.challenge_id = class_challenges.challenge_id)";
+				  FROM class_memberships, class_challenges
+				  WHERE class_memberships.class_id = class_challenges.class_id
+				  AND class_challenges.class_id = :class_id
+				  AND user_id
+					IN (SELECT user_id FROM challenge_attempts
+						WHERE challenge_attempts.user_id =  class_memberships.user_id
+						AND challenge_attempts.challenge_id = class_challenges.challenge_id)";
 
 		$query = $db->query($users, $params);
 		$result_array = array();

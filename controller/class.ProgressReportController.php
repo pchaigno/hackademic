@@ -58,44 +58,56 @@ class ProgressReportController extends HackademicController{
 				$this->addErrorMessage("Please select a student!");
 				return $this->generateView();
 			}
-			$challenges_of_user = UserChallenges::getChallengesOfUser($user->id);
-			$progress = ChallengeAttempts::getUserProgress($user->id);
+			//$challenges_of_user = UserChallenges::getChallengesOfUser($user->id);
 			$data = array();
+			$class_scores = array();
+			$classes_of_user = ClassMemberships::getMembershipsOfUser($user->id);
+			foreach($classes_of_user as $class){
+				$progress = ChallengeAttempts::getUserProgress($user->id, $class->class_id);
+				$user_scores = UserScore::get_scores_for_user_class($user->id, $class->class_id);
+				$class_challenges = ClassChallenges::getAllMemberships($class->class_id);
+				$data = $this->build_scoring_info($class_challenges, $progress, $user_scores);
+				$class_scores[$class->class_id] = $data;
+			}
+
 			//var_dump(UserChallenges::getChallengesOfUser($user->id));
 			//echo'</p>';var_dump($progress);
-			foreach ($challenges_of_user as $challenge) {
-				$attempts = 0;
-				$cleared = false;
-				$cleared_on = null;
-				if(false != $progress)
-				foreach($progress as $chal_prog){
-					if($challenge->id === $chal_prog->challenge_id){
-						$attempts = $chal_prog->count;
-						if( 1 === $chal_prog->status){
-							$cleared = true;
-							$cleared_on = $chal_prog->time;
-							//unset($progress[$chal_prog]);
-							break;
-						}
-					}
-				}
-				$arr = array(
-					'id' => $challenge->id,
-					'title' => $challenge->title,
-					'attempts' => $attempts,
-					'cleared' => $cleared,
-					'cleared_on' => $cleared_on
-				);
-				//echo'</p>';var_dump($arr);
-				array_push($data, $arr);
-
-			}
 			//var_dump($cleared_challenges);
-			$this->addToView('data', $data);
+			$this->addToView('class_scores', $class_scores);
 		} else {
 			$this->addErrorMessage("Please select a student to see his progress");
 		}
 
 		return $this->generateView();
+	}
+	private function build_scoring_info($class_challenges, $progress_arr, $user_scores){
+		$data = array();
+		foreach($class_challenges as $challenge){ /* For each class_challenge*/
+			foreach($user_scores as $p){/* find its associated points */
+				if($p->challenge_id == $challenge->id){
+					$pts = $p->points;
+				}
+			}
+			foreach($progress_arr as $chal_prog){
+				if($challenge->id === $chal_prog->challenge_id){ /* Find its progress*/
+					$attempts = $chal_prog->count;/*so we know the attempt count and if and when its cleared*/*/
+					if( 1 === $chal_prog->status){
+						$cleared = true;
+						$cleared_on = $chal_prog->time;
+						break;
+					}
+				}
+			}
+			$arr = array(
+				'id' => $challenge->id,
+				'title' => $challenge->title,
+				'attempts' => $attempts,
+				'cleared' => $cleared,
+				'cleared_on' => $cleared_on,
+				'points' => $pts
+			);
+			array_push($data, $arr);
+		}
+		return $data;
 	}
 }
