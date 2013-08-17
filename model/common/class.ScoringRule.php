@@ -47,7 +47,9 @@ class ScoringRule{
 	public $multiple_solution_bonus;
 	public $banned_user_agents;
 	public $base_score;
-
+	public $banned_user_agents_penalty;
+	public $first_try_solves;
+	public $penalty_for_many_first_try_solves;
 
     /**
 	 * Returns the details of the scoring rule with id $id

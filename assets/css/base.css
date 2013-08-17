@@ -73,3 +73,8 @@ body {height:95%;}
     color: #669;
     padding: 6px 8px;
 }
+.align_center{
+	display:block;
+	width:100%;
+	text-align:center;
+}

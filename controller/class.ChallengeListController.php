@@ -50,8 +50,6 @@ class ChallengeListController extends HackademicController {
 				       'url'=>'challenges/'.$challenge->pkg_name.'/index.php',
 				       'availability'=>$challenge->availability);
 			array_push($menu,$link);
-			//Debug::vars_get_value($link);
-			//var_dump($challenge);echo'</p>';
 			if ('private' == $challenge->availability){
 				$message = true;
 			}

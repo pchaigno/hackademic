@@ -27,7 +27,7 @@
 		include_once dirname(__FILE__).'/../../init.php';
         session_start();
         require_once(HACKADEMIC_PATH."pages/challenge_monitor.php");
-        $monitor->update(CHALLENGE_INIT,$_GET['user'],$_GET['id'],$_GET['token']);
+        $monitor->update(CHALLENGE_INIT, $_GET);
 		$_SESSION['init'] = true;
 
 	if(isset($_POST['try_xss'])){
@@ -36,11 +36,11 @@
 		  ($try_xss == "<script>alert('XSS!');</script>") ) {
     		echo 'Thank you'.' '.($_POST['try_xss']).'!';
 			echo "<H1>Congratulations!</H1>";
-			$monitor->update(CHALLENGE_SUCCESS,$_GET['user'],$_GET['id'],$_GET['token']);
+			$monitor->update(CHALLENGE_SUCCESS, $_GET);
 
     }
 	else {
-		$monitor->update(CHALLENGE_FAILURE,$_GET['user'],$_GET['id'],$_GET['token']);
+		$monitor->update(CHALLENGE_FAILURE, $_GET);
 ?>
 	Try to XSS me using the straight forward way... <br />
 	<form method="POST">

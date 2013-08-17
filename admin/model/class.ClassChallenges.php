@@ -65,8 +65,9 @@ class ClassChallenges {
 		}
 		return $result_array;
 	}
-/*@returns: array
- * Get all challenges the use can solve*/
+	/** @returns: array
+	 *  Get all challenges the use can solve
+	 */
 	public static function getChallengesOfUser($user_id) {
 		return UserChallenges::getChallengesOfUser($user_id);
 	}

@@ -38,14 +38,14 @@ class UserScore{
 	public $class_id;
 	public $user_id;
 	public $points;
-	public $penalties_bonuses
+	public $penalties_bonuses;
 
 	/**
 	 * Adds a score entry for a user solving the specific challenge
 	 * this function is called each time the user tries the challenge
 	 * and it's updated with the bonuses or penalties the user has*/
-	public static function add_user_score( $user_id, $challenge_id,
-																				 $class_id, $points,
+	public static function add_user_score( $user_id, $class_id,
+																					$challenge_id, $points,
 																				 $penalties_bonuses){
 		global $db;
 		$params=array(':user_id'=>$user_id, ':challenge_id'=>$challenge_id,
@@ -78,7 +78,7 @@ class UserScore{
 		global $db;
 		$params=array(':user_id'=>$user_id, ':challenge_id'=>$challenge_id,
 									':class_id'=>$class_id,	':points'=>$points,
-									':penalties_bonuses'=>$penalties_bonuses);
+									':penalties_bonuses'=>$penalties_bonuses,':id'=>$id);
 		$sql="UPDATE user_score SET user_id = :user_id,
 																challenge_id = :challenge_id,
 																class_id = :class_id,
@@ -111,7 +111,7 @@ class UserScore{
 		$params = array (':user_id' => $user_id );
 		$sql = "SELECT * FROM user_score WHERE user_id= :user_id LIMIT 1";
 		$result_array=self::findBySQL($sql,$params);
-		return !empty($result_array)?array_shift($result_array):false;
+		return !empty($result_array)?$result_array:false;
 		}
 	/**
 	 * Returns the scores for the challenge_id
@@ -146,7 +146,7 @@ class UserScore{
 						WHERE user_id= :user_id
 						AND class_id= :class_id";
 		$result_array=self::findBySQL($sql,$params);
-		return !empty($result_array)?array_shift($result_array):false;
+		return !empty($result_array)?$result_array:false;
 	}
 	/**
 	 * Returns the score information for the specific user in

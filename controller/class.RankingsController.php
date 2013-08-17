@@ -32,6 +32,7 @@
  */
 require_once(HACKADEMIC_PATH."/model/common/class.ChallengeAttempts.php");
 require_once(HACKADEMIC_PATH."/model/common/class.User.php");
+require_once(HACKADEMIC_PATH."/model/common/class.UserScore.php");
 require_once(HACKADEMIC_PATH."/admin/model/class.ClassMemberships.php");
 require_once(HACKADEMIC_PATH."/controller/class.HackademicController.php");
 
@@ -70,12 +71,12 @@ class RankingsController extends HackademicController {
         $prevcount=null;
 
       foreach($rankings as $ranking){
-				if ($counter !=1 && $prevcount == $ranking['count']) {$rank=$rankcount; /*$rankcount++;*/}
-				if  ($counter !=1 && $prevcount != $ranking['count']) {$rankcount++; $rank=$rankcount;}
+				if ($counter !=1 && $prevcount == $ranking['tries']) {$rank=$rankcount; /*$rankcount++;*/}
+				if  ($counter !=1 && $prevcount != $ranking['tries']) {$rankcount++; $rank=$rankcount;}
 				$user_points = $this->calc_user_pts($ranking['user_id'], $class_id);
-				$prevcount=$ranking['count'];
+				$prevcount=$ranking['tries'];
         $counter++;
-        $temp=array('user_id'=>$ranking['user_id'],'count' =>$ranking['count'],'username'=>$ranking['username'],'rank'=>$rank,'score' => $user_points);
+        $temp=array('user_id'=>$ranking['user_id'],'count' =>$ranking['tries'],'username'=>$ranking['username'],'rank'=>$rank,'score' => $user_points);
         array_push($final,$temp);
       }
         $this->addToView('rankings', $final);

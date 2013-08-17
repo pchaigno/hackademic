@@ -87,13 +87,14 @@ class Challenge {
 	public static function getChallengesFrontend($user_id) {
 		global $db;
 		$params=array(':user_id' => $user_id);
-		$sql = "SELECT DISTINCT challenges.id, challenges.title,challenges.pkg_name, challenges.availability,
+		$sql = "SELECT DISTINCT challenges.id, challenges.title,challenges.pkg_name, challenges.availability, class_challenges.class_id,
 			CASE WHEN class_id IS NULL THEN 'False' ELSE 'True' END AS class
 			FROM challenges
 			LEFT JOIN class_challenges ON challenges.id = class_challenges.challenge_id
-			WHERE challenges.publish =1 AND (
-			(visibility = 'public')
-			OR (class_id IN(
+			WHERE challenges.publish =1 AND ("
+	//		(visibility = 'public')
+		/*	OR*/
+	 ." (class_id IN(
 			SELECT class_memberships.class_id AS class_id
 			FROM class_memberships WHERE
 			class_memberships.user_id = :user_id
@@ -103,34 +104,32 @@ class Challenge {
 			ORDER BY challenges.id
 			";
 		$result_array= self::findBySQL($sql,$params);
-		/*$result_set=$db->query($sql,$params);
-		$object_array=array();
-		$i = 0;
-		while($row=$db->fetchArray($result_set)) {
-
-			$result_array[$i]["id"]= $row['id'];
-			$result_array[$i]["title"] = $row['title'];
-			$result_array[$i]["pkg_name"] = $row["pkg_name"];
-			$result_array[$i]["availability"]=  $row['availability'];
-			$result_array[$i]["class"]= $row['class'];
-			$i++;
-
-		}*/
-		//echo "<p>".var_dump($result_array)."</p>";
-		//Debug::show($result_array,'all',$this,_FUNCTION_);
 		return !empty($result_array)?$result_array:false;
 	}
-
+	/**
+	 * Returns the challenges assigned to the user with user_id $user
+	 * grouped by class_id
+	 */
 	public static function getChallengesAssigned($user) {
 		global $db;
 		$challenge_ids = ClassChallenges::getChallengesOfUser($user);
-		//var_dump($challenge_ids);
-		$challenges = array();
-		foreach ($challenge_ids as $chal) {
-    		    $challenge = self::getChallenge($chal->id);
-		    array_push($challenges, $challenge);
+
+		$class_challenges = array();
+		$class_ids = array();
+		if( $challenge_ids != FALSE){
+			foreach ($challenge_ids as $chal) {
+				if(!in_array($chal->class_id, $class_ids)){
+					$class_ids[$chal->class_id] = $chal->class_id;
+					$class_challenges[$chal->class_id] = array();
+				}
+ 		    $challenge = self::getChallenge($chal->id);
+		    if($chal->class_id != NULL)
+					array_push($class_challenges[$chal->class_id],$challenge);
+			}
+		}else{
+			return FALSE;
 		}
-		return $challenges;
+		return $class_challenges;
 	}
 
 	public static function insertId() {

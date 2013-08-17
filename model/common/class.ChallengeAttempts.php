@@ -35,9 +35,10 @@ class ChallengeAttempts {
 	public $id;
 	public $user_id;
 	public $challenge_id;
+	public $class_id;
 	public $time;
 	public $status;
-	public $count;//total_attempts;
+	public $tries;//total_attempts;
 	//public $dummy;//dummy class var for hacks
 
 	/**
@@ -46,21 +47,22 @@ class ChallengeAttempts {
 	 * @returns: true on succesful update
 	 * 			 false on error
 	 */
-	public static function addChallengeAttempt($user_id,$challenge_id,$status){
+	public static function addChallengeAttempt($user_id, $challenge_id, $class_id, $status){
 		global $db;
 
 		$time = date("Y-m-d H:i:s");
 		$params=array(':user_id' => $user_id,
-					  ':challenge_id' => $challenge_id,
-					  ':time' => $time,
-					  ':status' => $status);
-		$sql="INSERT INTO challenge_attempts(user_id,challenge_id,time,status)";
-		$sql .= "VALUES (:user_id,:challenge_id,:time,:status)";
+									':challenge_id' => $challenge_id,
+									':class_id' => $class_id,
+									':time' => $time,
+									':status' => $status);
+		$sql="INSERT INTO challenge_attempts(user_id, challenge_id, class_id, time, status)";
+		$sql .= "VALUES (:user_id, :challenge_id, :class_id, :time, :status)";
 		$query = $db->query($sql,$params);
 		if ($db->affectedRows($query)) {
 			return self::increaseChallengeAttemptCount($user_id,
-													   $challenge_id,
-													   $class_id);
+																								 $challenge_id,
+																								 $class_id);
 		} else {
 			return false;
 		}
@@ -70,13 +72,14 @@ class ChallengeAttempts {
 	 * Adds another challenge attempt or increases the existing ones
 	 */
 	public static function increaseChallengeAttemptCount($user_id,
-														 $challenge_id,
-														 $class_id){
+																											 $challenge_id,
+																											 $class_id){
 		global $db;
 		$params=array(':user_id' => $user_id,
-					  ':challenge_id' => $challenge_id,
-					  ':tries' => 1
-			     );
+									':challenge_id' => $challenge_id,
+									':class_id' => $class_id,
+									':tries' => 1
+									);
 		$sql = "INSERT INTO challenge_attempt_count
 				(user_id, challenge_id, class_id, tries)
 				VALUES (:user_id, :challenge_id, :class_id, :tries)
@@ -164,7 +167,7 @@ class ChallengeAttempts {
 		$params = array(':user_id' => $user_id, ':class_id' => $class_id );
 
 		/*Count the attempts for all challenges*/
-		$sql = "SELECT challenge_id, count(*) as count FROM challenge_attempts
+		$sql = "SELECT challenge_id, count(*) as tries FROM challenge_attempts
 				WHERE user_id = :user_id AND class_id = :class_id GROUP BY challenge_id;";
 		$result_array = self::findBySQL($sql,$params);
 
@@ -247,21 +250,21 @@ class ChallengeAttempts {
 		return !empty($result_array)?array_shift($result_array):false;
 	}
 	/**
-	 * Returns the user's tries the challenge
+	 * Returns the user's tries for the challenge
 	 */
 	public static function getUserTriesForChallenge($user_id, $challenge_id, $class_id){
 		global $db;
 
 		$params = array(':user_id' => $user_id,
-						':challenge_id' => $challenge_id,
-						':class_id' => $class_id);
+										':challenge_id' => $challenge_id,
+										':class_id' => $class_id);
 		$sql = ' SELECT tries FROM  challenge_attempt_count
-					WHERE user_id = :user_id
-					AND challenge_id = :challenge_id
-					AND class_id = :class_id
-					LIMIT 1;';
-		$result_array = self::findBySQL($sql, $params);
-		return !empty($result_array)?array_shift($result_array):false;
+							WHERE user_id = :user_id
+							AND challenge_id = :challenge_id
+							AND class_id = :class_id';
+		$result = self::findBySQL($sql, $params);
+		$result = $result[0]->tries;
+		return $result!= NULL?$result:false;
 	}
 	private static function findBySQL($sql,$params=NULL) {
 		global $db;
@@ -289,7 +292,7 @@ class ChallengeAttempts {
 		global $db;
 		$params = array(':class_id' => $class_id );
 
-		$sql = "SELECT user_id, time, count(*) as count, users.username
+		$sql = "SELECT user_id, time, count(*) as tries, users.username
 				FROM challenge_attempts LEFT JOIN users ON
 				users.id = user_id WHERE status = 1 ";
 		if ($class_id) {
@@ -313,15 +316,16 @@ class ChallengeAttempts {
 	public static function getCountOfFirstTrySolves($user_id, $class_id){
 		global $db;
 
-		$params = array(':user_id' => $user_id);
-		$sql = "SELECT count(*)
-				FROM challenge_attempt_count,  challenge_attempts
-				WHERE challenge_attempt_count.user_id = :user_id
-				AND challenge_attempt_count.tries = 1
-				AND challenge_attempts.user_id = :user_id
-				AND challenge_attempts.challenge_id = challenge_attempt_count.challenge_id
-				AND challenge_attempts.status = 1;
-																	";
+		$params = array(':user_id' => $user_id,
+										':class_id' => $class_id);
+		$sql = "SELECT count(*) as tries
+						FROM challenge_attempt_count,  challenge_attempts
+						WHERE challenge_attempt_count.user_id = :user_id
+						AND challenge_attempt_count.class_id =:class_id
+						AND challenge_attempt_count.tries = 1
+						AND challenge_attempts.user_id = challenge_attempt_count.user_id
+						AND challenge_attempts.challenge_id = challenge_attempt_count.challenge_id
+						AND challenge_attempts.status = 1;";
 		$result = self::findBySQL($sql, $params);
 		return !empty($result_array)?array_shift($result_array):0;
 	}
@@ -331,7 +335,7 @@ class ChallengeAttempts {
 		$params = array(':class_id' => $class_id );
 
 		//get users belonging to class who have tried challenges belonging to class
-		$users = "SELECT DISTINCT class_memberships.user_id, class_challenges.challenge_id
+		$sql = "SELECT DISTINCT class_memberships.user_id, class_challenges.challenge_id
 				  FROM class_memberships, class_challenges
 				  WHERE class_memberships.class_id = class_challenges.class_id
 				  AND class_challenges.class_id = :class_id
@@ -339,8 +343,7 @@ class ChallengeAttempts {
 					IN (SELECT user_id FROM challenge_attempts
 						WHERE challenge_attempts.user_id =  class_memberships.user_id
 						AND challenge_attempts.challenge_id = class_challenges.challenge_id)";
-
-		$query = $db->query($users, $params);
+		$query = $db->query($sql, $params);
 		$result_array = array();
 		while($row=$db->fetchArray($query)) {
 			array_push($result_array, $row);
@@ -348,7 +351,7 @@ class ChallengeAttempts {
 
 		$score = array();
 		//for each user,challenge pair check if the user has solved the challenge
-			$score_q = "SELECT count(*) as count, user_id, users.username
+			$score_q = "SELECT count(*) as tries, user_id, users.username
 							FROM challenge_attempts LEFT JOIN users ON
 					users.id = user_id WHERE status = 1 AND user_id = :user_id AND challenge_id = :challenge_id";
 
@@ -367,7 +370,7 @@ class ChallengeAttempts {
 					foreach($score as &$uscore){
 						$k = array_search($res['user_id'],$uscore);
 						if( false != $k){
-							$uscore['count'] = 1 + intval($uscore['count']);
+							$uscore['tries'] = 1 + intval($uscore['tries']);
 							break;
 						}
 						unset($uscore);
@@ -384,10 +387,10 @@ class ChallengeAttempts {
 	}
 	static function sort_count($rankA, $rankB){
 
-		if ($rankA['count'] == $rankB['count']) {
+		if ($rankA['tries'] == $rankB['tries']) {
 			return 0;
 		}
-    return ($rankA['count'] < $rankB['count']) ? 1 : -1;
+    return ($rankA['tries'] < $rankB['tries']) ? 1 : -1;
 	}
 	public static function getScore($user_id, $challenge_id){
 	global $db;
