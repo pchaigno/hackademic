@@ -62,6 +62,7 @@ class ProgressReportController extends HackademicController{
 			}
 			//$challenges_of_user = UserChallenges::getChallengesOfUser($user->id);
 			$data = array();
+			$class_ids = array();
 			$class_scores = array();
 			$classes_of_user = ClassMemberships::getMembershipsOfUserObjects($user->id);
 
@@ -71,9 +72,11 @@ class ProgressReportController extends HackademicController{
 				$class_challenges = ClassChallenges::getAllMemberships($class->id);
 				$data = $this->build_scoring_info($class_challenges, $progress, $user_scores);
 				$class_scores[$class->name] = $data;
+				$class_ids[$class->name] = $class->id;
 			}
 
 			$this->addToView('data', $class_scores);
+			$this->addToView('ids', $class_ids);
 		} else {
 			$this->addErrorMessage("Please select a student to see his progress");
 		}

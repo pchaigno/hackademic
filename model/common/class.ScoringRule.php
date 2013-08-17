@@ -121,5 +121,32 @@ class ScoringRule{
 		$object_vars=get_object_vars($this);
 		return array_key_exists($attribute,$object_vars);
 	}
+	public static function getRuleSummary($rule){
+		$result = "";
+		$i = 0;
+		foreach($rule as $attr=>$value){
+			if($value > 0)
+				if(	$attr != 'id'
+						&& $attr != 'challenge_id'
+						&& $attr != 'class_id'
+						&& $attr != 'banned_user_agents'
+						&& $attr != 'base_score'){
+						if($i != 0){
+							$result .=", ";
+						}
+						$result .= $attr;	$i++;
+						}
+		}
+		return $result;
+	}
+	public static function isDefaultRule($rule){
+		if($rule->challenge_id == -1){
+			if($rule->class_id == -1)
+					if($rule->attempt_cap == 0)
+						return true;}
+		else
+		 return false;
+
+	}
 }
  ?>

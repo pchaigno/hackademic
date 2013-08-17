@@ -82,14 +82,17 @@ class Debug {
 
 
 	}
-	public static function pretty_print($arr){
+	public static function pretty_print($arr, $callback = false){
     $retStr = '<ul>';
     if (is_array($arr)){
         foreach ($arr as $key=>$val){
             if (is_array($val)){
                 $retStr .= '<li>' . $key . ' => ' . self::pretty_print($val) . '</li>';
             }else{
-                $retStr .= '<li>' . $key . ' => ' . $val . '</li>';
+								if($callback != false)
+									$retStr .= '<li>' . $key . ' => ' . call_user_func($callback,$val)  . '</li>';
+                else
+									$retStr .= '<li>' . $key . ' => ' . $val  . '</li>';
             }
         }
     }

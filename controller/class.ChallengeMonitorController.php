@@ -174,7 +174,7 @@ class ChallengeMonitorController {
 
 			/* if challenge has not scoring rules load up the default ones*/
 			if( $rule == false){
-				$rule = ScoringRule::get_scoring_rule(1);
+				$rule = ScoringRule::get_scoring_rule(DEFAULT_RULES_ID);
 			}
 
 			/* Add the rules to the session */
@@ -211,7 +211,7 @@ class ChallengeMonitorController {
 			}
 			//var_dump($challenge_id);die();
 			if( $current_score->points == 0 && $current_score->penalties_bonuses == NULL){
-				$current_score->points = $base_score;
+				$current_score->points = 0;
 			}
 
 			$_SESSION['current_score'] = (array)$current_score;
@@ -286,6 +286,7 @@ class ChallengeMonitorController {
 
 			}
 		}elseif ($status == 1){
+			$current_score->points += $base_score;
 
 			if (ChallengeAttempts::isChallengeCleared($user_id, $challenge_id, $class_id)){
 				/* apply multiple solutions bonus*/

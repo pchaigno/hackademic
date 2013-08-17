@@ -32,17 +32,44 @@
  */
 
 class ScoringRuleBackend extends ScoringRule{
-
+/*TODO na pros8esw ola ta parakatw san arguments
+ * 	public $id;
+	public $challenge_id;
+	public $class_id;
+	public $attempt_cap;
+	public $attempt_cap_penalty;
+	public $time_between_first_and_last_attempt;
+	public $time_penalty;
+	public $time_reset_limit_seconds;
+	public $request_frequency;
+	public $request_frequency_penalty;
+	public $experimentation_bonus;
+	public $multiple_solution_bonus;
+	public $banned_user_agents;
+	public $base_score;
+	public $banned_user_agents_penalty;
+	public $first_try_solves;
+	public $penalty_for_many_first_try_solves;
+*/
 	/**
 	 * Adds a new scoring rule
 	 */
-	public static function add_scoring_rule($challenge_id, $class_id,
-											$attempt_cap, $attempt_cap_penalty,
-											$time_between_first_and_last_attempt,
-											$time_penalty, $time_reset_limit_seconds,
-											$request_frequency,	$request_frequency_penalty,
-											$experimentation_bonus,	$multiple_solution_bonus,
-											$banned_user_agents, $base_score){
+	public static function add_scoring_rule(	$challenge_id,
+																						$class_id,
+																						$attempt_cap,
+																						$attempt_cap_penalty,
+																						$time_between_first_and_last_attempt,
+																						$time_penalty,
+																						$time_reset_limit_seconds,
+																						$request_frequency,
+																						$request_frequency_penalty,
+																						$experimentation_bonus,
+																						$multiple_solution_bonus,
+																						$banned_user_agents,
+																						$base_score,
+																						$banned_user_agents_penalty,
+																						$first_try_solves,
+																						$penalty_for_many_first_try_solves){
 
 
 	}
@@ -55,7 +82,8 @@ class ScoringRuleBackend extends ScoringRule{
 											   $time_penalty, $time_reset_limit_seconds,
 											   $request_frequency,	$request_frequency_penalty,
 											   $experimentation_bonus,	$multiple_solution_bonus,
-											   $banned_user_agents, $base_score){
+											   $banned_user_agents, $base_score,$banned_user_agents_penalty,
+												$first_try_solves, $penalty_for_many_first_try_solves){
 
 
 	}

@@ -120,7 +120,9 @@ class ClassChallenges {
 			return false;
 		}
 	}
-
+	/**
+	 * Returns every challenge in the given class_id
+	 */
 	public static function getAllMemberships($class_id) {
 		global $db;
 		$param=array(':class_id' => $class_id);

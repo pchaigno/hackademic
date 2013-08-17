@@ -71,7 +71,12 @@ class Challenge {
 		$result_array=self::findBySQL($sql,$params);
 		return !empty($result_array)?array_shift($result_array):false;
 	}
-
+	public static function getPublicChallenges(){
+			global $db;
+			$sql = "SELECT * FROM challenges WHERE availability = 'public' AND visibility = 'public'";
+			$result_array=self::findBySQL($sql);
+		return !empty($result_array)?array_shift($result_array):false;
+	}
 	public static function getChallengeByPkgName($pkg_name) {
 		global $db;
 		$params = array(
@@ -83,11 +88,12 @@ class Challenge {
 		//return $result_array;
 	}
 
-//get all Visible challenges
+//get all Visible and solvable challenges
 	public static function getChallengesFrontend($user_id) {
 		global $db;
 		$params=array(':user_id' => $user_id);
-		$sql = "SELECT DISTINCT challenges.id, challenges.title,challenges.pkg_name, challenges.availability, class_challenges.class_id,
+		$sql = "SELECT DISTINCT challenges.id, challenges.title,challenges.pkg_name, challenges.availability,
+						class_challenges.class_id,
 			CASE WHEN class_id IS NULL THEN 'False' ELSE 'True' END AS class
 			FROM challenges
 			LEFT JOIN class_challenges ON challenges.id = class_challenges.challenge_id
@@ -104,6 +110,12 @@ class Challenge {
 			ORDER BY challenges.id
 			";
 		$result_array= self::findBySQL($sql,$params);
+
+		$sql = "SELECT * FROM challenges WHERE visibility = 'public' AND availability = 'public'";
+		$res_arr2 = self::findBySQL($sql);
+		$result = array_udiff($res_arr2, $result_array, 'Challenge::compare_challenges');
+		foreach( $result as $el)
+			array_push($result_array,$el);
 		return !empty($result_array)?$result_array:false;
 	}
 	/**
@@ -198,5 +210,21 @@ class Challenge {
 	private function hasAttribute($attribute) {
 		$object_vars=get_object_vars($this);
 		return array_key_exists($attribute,$object_vars);
+	}
+
+	private static function compare_challenges($ch_a, $ch_b) {
+
+	//	var_dump($ch_a->id);var_dump($ch_b->id);echo '</br>';
+
+		if ($ch_a->id === $ch_b->id){
+		//	echo 'equal '. $ch_a->id.'</br>';
+			return 0;
+		}elseif($ch_a->id < $ch_b->id){
+		//	echo 'less '. $ch_a->id.' '.$ch_b->id.'</br>';
+			return -1;
+		}elseif($ch_a->id > $ch_b->id){
+		//	echo 'more '. $ch_a->id.' '.$ch_b->id.'</br>';
+			return 1;
+		}
 	}
 }
