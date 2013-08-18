@@ -1,23 +1,5 @@
--- phpMyAdmin SQL Dump
--- version 3.4.11.1deb2
--- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: Aug 16, 2013 at 05:12 PM
--- Server version: 5.5.31
--- PHP Version: 5.3.3-7+squeeze15
-
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
---
--- Database: `temp`
+-- Database: `hackademic`
 --
 
 -- --------------------------------------------------------
@@ -37,14 +19,14 @@ CREATE TABLE IF NOT EXISTS `articles` (
   `ordering` int(10) DEFAULT '0',
   `is_published` int(1) DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 --
 -- Dumping data for table `articles`
 --
 
 INSERT INTO `articles` (`id`, `title`, `content`, `date_posted`, `created_by`, `last_modified`, `last_modified_by`, `ordering`, `is_published`) VALUES
-(1, 'Welcome', '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed interdum, felis ac pellentesque feugiat, massa enim sagittis elit, sed dignissim sem ligula non nisl. Sed pulvinar nunc nec eros aliquet non tempus diam vehicula. Nunc tincidunt, leo ut interdum tristique, quam ligula porttitor tellus, at tincidunt magna enim nec arcu. Nunc tempor egestas libero. Vivamus nulla ligula, vehicula vitae mattis quis, laoreet eget urna. Proin eget est quis urna venenatis dictum nec vel lectus. Nullam sit amet vehicula leo. Sed commodo, orci vitae facilisis accumsan, arcu justo sagittis risus, quis aliquet purus neque eu odio. Mauris lectus orci, tincidunt in varius quis, dictum sed nibh. Quisque dapibus mollis blandit. Donec vel tellus nisl, sed scelerisque felis. Praesent ut eros tortor, sed molestie nunc. Duis eu massa at justo iaculis gravida.</p>\r\n<p>In adipiscing dictum risus a tincidunt. Sed nisi ipsum, rutrum sed ornare in, bibendum at augue. Integer ornare semper varius. Integer luctus vehicula elementum. Donec cursus elit quis erat laoreet elementum. Praesent eget justo purus, vitae accumsan massa. Ut tristique, mauris non dignissim luctus, velit justo sollicitudin odio, vel rutrum purus enim eu felis. In adipiscing elementum sagittis. Nam sed dui ante. Nunc laoreet hendrerit nisl vitae porta. Praesent sit amet ligula et nisi vulputate volutpat. Maecenas venenatis iaculis sapien sit amet auctor. Curabitur euismod venenatis velit non tempor. Cras vel sapien purus, mollis fermentum nulla. Mauris sed elementum enim. Donec ultrices urna at justo adipiscing rutrum.</p>', '2012-08-09 01:19:59', 'admin', NULL, NULL, 0, 1);
+(2, 'Welcome to Hackademic v0.9!', '<p><img src="http://www.techtoweb.com/wp-content/uploads/2012/12/owasp-security.png" alt="owasp logo" width="840" height="188" /></p>\r\n<p>&nbsp;</p>\r\n<p>Thank you for installling and using the Hackademic challenges project.</p>\r\n<p>You can find our code on github <a href="https://github.com/Hackademic/hackademic">here</a>, for any problems or support, please open an issue on our github repository.</p>\r\n<p>&nbsp;</p>\r\n<p>Hackademic is a FOSS project under the OWASP umbrela organization.</p>', '2013-08-18 00:00:17', 'admin', '2013-08-18 00:04:27', 'admin', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -106,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `challenge_attempts` (
   `status` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`,`challenge_id`,`class_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=328 ;
 
 -- --------------------------------------------------------
 
@@ -121,8 +103,8 @@ CREATE TABLE IF NOT EXISTS `challenge_attempt_count` (
   `class_id` int(11) NOT NULL,
   `tries` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `composite_key` (`user_id`,`challenge_id`,`class_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+  UNIQUE KEY `composite_key` (`user_id`,`challenge_id`,`class_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=323 ;
 
 -- --------------------------------------------------------
 
@@ -143,8 +125,7 @@ CREATE TABLE IF NOT EXISTS `classes` (
 --
 
 INSERT INTO `classes` (`id`, `name`, `date_created`, `archive`) VALUES
-(1, 'Sample Class', '2012-08-09 00:43:48', 0),
-(2, 'fooClass', '2012-10-16 22:32:43', 0);
+(1, 'Global Class', '2012-08-09 00:43:48', 0);
 
 -- --------------------------------------------------------
 
@@ -158,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `class_challenges` (
   `class_id` int(11) NOT NULL,
   `date_created` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=15 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
 
 --
 -- Dumping data for table `class_challenges`
@@ -174,11 +155,7 @@ INSERT INTO `class_challenges` (`id`, `challenge_id`, `class_id`, `date_created`
 (7, 7, 1, '2012-08-09 01:01:07'),
 (8, 9, 1, '2012-08-09 01:01:07'),
 (9, 10, 1, '2012-08-09 01:01:07'),
-(10, 1, 2, '2012-10-16 22:32:49'),
-(11, 4, 2, '2012-10-16 22:32:52'),
-(12, 9, 2, '2012-10-16 22:32:53'),
-(13, 10, 2, '2012-10-16 22:32:55'),
-(14, 8, 2, '2012-10-16 22:32:58');
+(15, 8, 1, '2013-08-18 00:05:23');
 
 -- --------------------------------------------------------
 
@@ -193,38 +170,7 @@ CREATE TABLE IF NOT EXISTS `class_memberships` (
   `date_created` datetime NOT NULL,
   PRIMARY KEY (`user_id`,`class_id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
-
---
--- Dumping data for table `class_memberships`
---
-
-INSERT INTO `class_memberships` (`id`, `user_id`, `class_id`, `date_created`) VALUES
-(1, 1, 1, '2012-08-09 00:59:00'),
-(2, 2, 1, '2012-08-09 00:59:00'),
-(3, 3, 1, '2012-08-09 00:59:00'),
-(4, 4, 2, '2012-10-16 22:33:07'),
-(5, 5, 2, '2012-10-16 22:33:13');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `options`
---
-
-CREATE TABLE IF NOT EXISTS `options` (
-  `option_name` varchar(64) NOT NULL,
-  `option_value` text NOT NULL,
-  PRIMARY KEY (`option_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `options`
---
-
-INSERT INTO `options` (`option_name`, `option_value`) VALUES
-('active_plugins', '[]'),
-('active_user_theme', '"view\\/"');
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
@@ -241,25 +187,25 @@ CREATE TABLE IF NOT EXISTS `scoring_rule` (
   `time_between_first_and_last_attempt` int(11) NOT NULL DEFAULT '0',
   `time_penalty` int(11) NOT NULL DEFAULT '0',
   `time_reset_limit_seconds` int(11) NOT NULL DEFAULT '0',
-  `request_frequency` int(11) NOT NULL DEFAULT '0',
+  `request_frequency_per_minute` int(11) NOT NULL DEFAULT '0',
   `request_frequency_penalty` int(11) NOT NULL DEFAULT '0',
   `experimentation_bonus` int(11) NOT NULL DEFAULT '0',
   `multiple_solution_bonus` int(11) NOT NULL DEFAULT '0',
   `banned_user_agents` longtext CHARACTER SET ascii COLLATE ascii_bin,
-  `banned_user_agents_penalty` int(11) NOT NULL,
+  `banned_user_agents_penalty` int(11) NOT NULL DEFAULT '0',
   `base_score` int(11) NOT NULL DEFAULT '5',
-  `first_try_solves` int(11) NOT NULL,
-  `penalty_for_many_first_try_solves` int(11) NOT NULL,
+  `first_try_solves` int(11) NOT NULL DEFAULT '0',
+  `penalty_for_many_first_try_solves` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `challenge_id` (`challenge_id`,`class_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
 
 --
 -- Dumping data for table `scoring_rule`
 --
 
-INSERT INTO `scoring_rule` (`id`, `challenge_id`, `class_id`, `attempt_cap`, `attempt_cap_penalty`, `time_between_first_and_last_attempt`, `time_penalty`, `time_reset_limit_seconds`, `request_frequency`, `request_frequency_penalty`, `experimentation_bonus`, `multiple_solution_bonus`, `banned_user_agents`, `banned_user_agents_penalty`, `base_score`, `first_try_solves`, `penalty_for_many_first_try_solves`) VALUES
-(1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Indy Library,\r\nlibwww-perl\r\ncurl\r\nnikto\r\nw3af', 0, 5, 0, 0);
+INSERT INTO `scoring_rule` (`id`, `challenge_id`, `class_id`, `attempt_cap`, `attempt_cap_penalty`, `time_between_first_and_last_attempt`, `time_penalty`, `time_reset_limit_seconds`, `request_frequency_per_minute`, `request_frequency_penalty`, `experimentation_bonus`, `multiple_solution_bonus`, `banned_user_agents`, `banned_user_agents_penalty`, `base_score`, `first_try_solves`, `penalty_for_many_first_try_solves`) VALUES
+(1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Indy Library,\r\nlibwww-perl, \r\ncurl, \r\nnikto, \r\nw3af, ', 0, 5, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -280,17 +226,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `token` int(10) DEFAULT '0',
   PRIMARY KEY (`username`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `username`, `full_name`, `email`, `password`, `joined`, `last_visit`, `is_activated`, `type`, `token`) VALUES
-(1, 'bar', 'mr. bar', 'bar@owasp.com', '$P$BJ8UtXZYqS/Lokm8zFMwcxO8dq797P.', '2012-10-16 22:12:52', '2012-10-16 22:22:39', 0, 0, 0),
-(2, 'foo', 'mr. foo', 'foo@owasp.com', '$P$BxCHeVG1RMF06UxwRbrVQtPA1yOwAq.', '2012-10-16 22:12:34', '2012-10-16 22:59:29', 0, 0, 0),
-(3, 'sensei', 'waspy sifu', 'waspy@owasp.sifu', '$P$Bj/JtLJJR3bUD0LLWXL2UW9DuRVo0I.', '2012-10-16 22:36:06', '2012-10-16 22:37:04', 1, 2, 0);
-
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
 -- --------------------------------------------------------
 
 --
@@ -303,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `user_has_challenge_token` (
   `challenge_id` varchar(512) NOT NULL,
   `token` varchar(256) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
 
 -- --------------------------------------------------------
 
@@ -312,7 +248,7 @@ CREATE TABLE IF NOT EXISTS `user_has_challenge_token` (
 --
 
 CREATE TABLE IF NOT EXISTS `user_score` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `challenge_id` int(11) NOT NULL,
   `class_id` int(11) NOT NULL,
@@ -320,8 +256,4 @@ CREATE TABLE IF NOT EXISTS `user_score` (
   `penalties_bonuses` longtext CHARACTER SET ascii COLLATE ascii_bin,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`,`challenge_id`,`class_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=62 ;
