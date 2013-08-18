@@ -45,7 +45,7 @@ class Utils {
 				define('GLOBAL_CLASS_ID',1);
 				define('DEFAULT_RULES_ID',1);
 				define('NO_RESULTS',false);
-
+				define('MICROSECS_IN_MINUTE',60);
 		}
 	}
 

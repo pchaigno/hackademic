@@ -53,7 +53,7 @@ class RankingsController extends HackademicController {
         }
         if (!isset($_GET["class"]) || $_GET["class"]=="") {
             $rankings = ChallengeAttempts::getUniversalRankings();
-            $class_id = -1;
+            $class_id = GLOBAL_CLASS_ID;
         } else {
             $class_id = $_GET["class"];
             $class = Classes::getClass($class_id);
@@ -71,13 +71,15 @@ class RankingsController extends HackademicController {
         $prevcount=null;
 
       foreach($rankings as $ranking){
-				if ($counter !=1 && $prevcount == $ranking['tries']) {$rank=$rankcount; /*$rankcount++;*/}
-				if  ($counter !=1 && $prevcount != $ranking['tries']) {$rankcount++; $rank=$rankcount;}
-				$user_points = $this->calc_user_pts($ranking['user_id'], $class_id);
-				$prevcount=$ranking['tries'];
-        $counter++;
-        $temp=array('user_id'=>$ranking['user_id'],'count' =>$ranking['tries'],'username'=>$ranking['username'],'rank'=>$rank,'score' => $user_points);
-        array_push($final,$temp);
+				if($ranking['user_id'] != NULL){
+					if ($counter !=1 && $prevcount == $ranking['tries']) {$rank=$rankcount; /*$rankcount++;*/}
+					if  ($counter !=1 && $prevcount != $ranking['tries']) {$rankcount++; $rank=$rankcount;}
+					$user_points = $this->calc_user_pts($ranking['user_id'], $class_id);
+					$prevcount=$ranking['tries'];
+					$counter++;
+					$temp=array('user_id'=>$ranking['user_id'],'count' =>$ranking['tries'],'username'=>$ranking['username'],'rank'=>$rank,'score' => $user_points);
+					array_push($final,$temp);
+				}
       }
         $this->addToView('rankings', $final);
         return $this->generateView();
@@ -90,9 +92,11 @@ class RankingsController extends HackademicController {
 			}else{
 				$scores = UserScore::get_scores_for_user_class($user_id, $class_id);
 			}
+			if( $scores != false){
 				foreach($scores as $score_obj){
 					$points += $score_obj->points;
 				}
+			}
 			return $points;
 		}
 }

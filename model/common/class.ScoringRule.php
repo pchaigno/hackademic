@@ -41,7 +41,7 @@ class ScoringRule{
 	public $time_between_first_and_last_attempt;
 	public $time_penalty;
 	public $time_reset_limit_seconds;
-	public $request_frequency;
+	public $request_frequency_per_minute;
 	public $request_frequency_penalty;
 	public $experimentation_bonus;
 	public $multiple_solution_bonus;
@@ -140,13 +140,39 @@ class ScoringRule{
 		return $result;
 	}
 	public static function isDefaultRule($rule){
-		if($rule->challenge_id == -1){
-			if($rule->class_id == -1)
+		$count = 0;
+					if(!is_object($rule)){
+						error_log("isDefaultRule:Variable not an object");
+						return;
+					}
 					if($rule->attempt_cap == 0)
-						return true;}
-		else
-		 return false;
+						$count++;
+					if($rule->attempt_cap_penalty == 0)
+						$count++;
+					if($rule->time_between_first_and_last_attempt == 0)
+						$count++;
+					if($rule->time_reset_limit_seconds == 0)
+						$count++;
+					if($rule-> request_frequency_per_minute == 0)
+						$count++;
+					if($rule-> request_frequency_penalty == 0)
+						$count++;
+					if($rule->experimentation_bonus == 0)
+						$count++;
+					if($rule->multiple_solution_bonus == 0)
+						$count++;
+					if($rule->banned_user_agents == 0)
+						$count++;
+					if($rule->base_score == 0)
+						$count++;
+					if($rule->banned_user_agents_penalty == 0)
+						$count++;
+					if($rule->first_try_solves == 0)
+						$count++;
+					if($rule->penalty_for_many_first_try_solves == 0)
+						$count++;
 
+		return $count == 13?true:false;
 	}
 }
  ?>

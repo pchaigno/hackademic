@@ -90,16 +90,19 @@ class ProgressReportController extends HackademicController{
 		$cleared = null;
 		$cleared_on = null;
 		$attempts = null;
+		if($class_challenges != false)
 		foreach($class_challenges as $challenge){ /* For each class_challenge*/
 			$pts = null;
 			$cleared = null;
 			$cleared_on = null;
 			$attempts = null;
+			if($user_scores != false)
 			foreach($user_scores as $p){/* find its associated points */
 				if($p->challenge_id == $challenge['challenge_id']){
 					$pts = $p->points;
 				}
 			}
+			if($progress_arr != false)
 			foreach($progress_arr as $chal_prog){
 				if($challenge['challenge_id'] == $chal_prog->challenge_id){ /* Find its progress*/
 					$attempts = $chal_prog->tries;/*so we know the attempt count and if and when its cleared*/

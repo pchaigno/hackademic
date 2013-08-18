@@ -263,7 +263,10 @@ class ChallengeAttempts {
 							AND challenge_id = :challenge_id
 							AND class_id = :class_id';
 		$result = self::findBySQL($sql, $params);
-		$result = $result[0]->tries;
+		if(!empty($result))
+			$result = $result[0]->tries;
+		else $resutl = NULL;
+
 		return $result!= NULL?$result:false;
 	}
 	private static function findBySQL($sql,$params=NULL) {
@@ -292,14 +295,14 @@ class ChallengeAttempts {
 		global $db;
 		$params = array(':class_id' => $class_id );
 
-		$sql = "SELECT user_id, time, count(*) as tries, users.username
-				FROM challenge_attempts LEFT JOIN users ON
-				users.id = user_id WHERE status = 1 ";
+		$sql = "SELECT count(*) as tries, user_id, users.username
+							FROM challenge_attempts LEFT JOIN users ON
+					users.id = user_id WHERE status = 1 ";
 		if ($class_id) {
 			$sql .= "AND challenge_id IN (SELECT id as challenge_id
 					 FROM class_challenges WHERE class_id = :class_id)";
 		}
-		$sql .= "GROUP BY user_id ORDER BY count(*) DESC, time LIMIT 100;";
+		//$sql .= "ORDER BY count(*) DESC, time LIMIT 100;";
 
 		//var_dump($sql);
 		$query = $db->query($sql);

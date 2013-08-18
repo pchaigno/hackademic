@@ -28,7 +28,7 @@
         session_start();
         require_once(HACKADEMIC_PATH."pages/challenge_monitor.php");
         $monitor->update(CHALLENGE_INIT, $_GET);
-		$_SESSION['init'] = true;
+				$_SESSION['init'] = true;
 
 	if(isset($_POST['try_xss'])){
 		$try_xss = $_POST['try_xss'];

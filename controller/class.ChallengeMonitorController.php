@@ -64,7 +64,7 @@ class ChallengeMonitorController {
 			$pkg_name = $url_components[$i+1];
 		return $pkg_name;
 	}
-    public function start($user_id = null, $chid = null, $token = null,
+    public function start($user_id = null, $chid = null, $class_id = null, $token = null,
 						  $status = 'CHECK'){
 		if(!isset($_SESSION))
 			session_start();
@@ -74,6 +74,7 @@ class ChallengeMonitorController {
 			$_SESSION['token'] = $token;
 			$_SESSION['user_id'] = $user_id;
 			$_SESSION['pkg_name'] = $this->get_pkg_name();
+			$this->calc_score(-1, $user_id, $chid, $class_id);
 			$_SESSION['init'] = true;
 			//var_dump($_SESSION);
 			return;
@@ -108,6 +109,8 @@ class ChallengeMonitorController {
 					$_SESSION['token'] = $token;
 					$_SESSION['pkg_name'] = $pkg_name;
 					$_SESSION['user_id'] = $user_id;
+					$this->calc_score(-1, $user_id, $chid, $class_id);
+					$_SESSION['init'] = false;
 				}
 			}else{
 				//var_dump($_SESSION);//die();
@@ -132,10 +135,11 @@ class ChallengeMonitorController {
 		$class_id = $request['class_id'];
 		$token = $request['token'];
 
-		$this->start($user_id,$chid,$token,$status);
-		/*if status == init we only need to update the SESSION var*/
+		$this->start($user_id,$chid, $class_id, $token,$status);
+		/*
+		 * if status == init we only need to update the SESSION var which we do in start
+		 */
 		if($status == CHALLENGE_INIT){
-			$this->calc_score(-1, $user_id, $chid, $class_id);
 			return;
 		}
 		if ($user_id == null)
@@ -173,13 +177,13 @@ class ChallengeMonitorController {
 			$rule = ScoringRule::get_scoring_rule_by_challenge_class_id($challenge_id, $class_id);
 
 			/* if challenge has not scoring rules load up the default ones*/
-			if( $rule == false){
+			if( $rule === false){
 				$rule = ScoringRule::get_scoring_rule(DEFAULT_RULES_ID);
 			}
 
 			/* Add the rules to the session */
 			$_SESSION['rules'] =  (array)$rule;
-		}else{
+		}
 			/* load the rules and the current score*/
 			$attempt_cap = $_SESSION['rules']['attempt_cap'];
 			$attempt_cap_penalty = $_SESSION['rules']['attempt_cap_penalty'];
@@ -188,7 +192,7 @@ class ChallengeMonitorController {
 			$reset_time = $_SESSION['rules']['time_reset_limit_seconds'];
 			$time_penalty = $_SESSION['rules']['time_penalty'];
 
-			$rps_limit = $_SESSION['rules']['request_frequency'];
+			$rps_limit = $_SESSION['rules']['request_frequency_per_minute'];
 			$rps_penalty = $_SESSION['rules']['request_frequency_penalty'];
 
 			$exp_bonus = $_SESSION['rules']['experimentation_bonus'];
@@ -204,25 +208,30 @@ class ChallengeMonitorController {
 
 			$current_score = UserScore::get_scores_for_user_class_challenge($user_id, $class_id, $challenge_id);
 
-			if ($current_score == false){
-				UserScore::add_user_score( $user_id, $class_id, $challenge_id, $base_score, "");
+			if ($current_score === false){
+				UserScore::add_user_score( $user_id, $class_id, $challenge_id, 0, "");
 
 				$current_score = UserScore::get_scores_for_user_class_challenge($user_id, $class_id, $challenge_id);
-			}
+
 			//var_dump($challenge_id);die();
-			if( $current_score->points == 0 && $current_score->penalties_bonuses == NULL){
-				$current_score->points = 0;
-			}
 
 			$_SESSION['current_score'] = (array)$current_score;
+
 		}
 		if ($status == -1){
+
+			foreach($_SESSION['rules'] as $key=>$value)
+				unset($_SESSION['rules'][$key]);
+			unset($_SESSION['rules']);
+
+
 			$_SESSION['f_atempt'] = date("Y-m-d H:i:s");
 			$_SESSION['last_attempt'] = date("Y-m-d H:i:s");
-			$_SESSION['total_attempt_count'] = 1;
+			$_SESSION['total_attempt_count'] = 0;
 
 			$_SESSION['rps_attempt_count'] = 1;
-			$_SESSION['rps_sec_start'] = $_SERVER["REQUEST_TIME_FLOAT"];
+			$_SESSION['rps_min_start'] = microtime(true);
+			$_SESSION['last_attempt_microsecs'] = microtime(true);
 
 			$_SESSION['ua'] = $_SERVER['HTTP_USER_AGENT'];
 
@@ -230,7 +239,7 @@ class ChallengeMonitorController {
 
 		}elseif ($status == 0){
 			if (ChallengeAttempts::isChallengeCleared($user_id, $challenge_id, $class_id)){
-				if (strpos($current_score,EXPERIMENTATION_BONUS_ID) == false && $exp_bonus > 0){
+				if (strpos($current_score->penalties_bonuses,EXPERIMENTATION_BONUS_ID) === false && $exp_bonus > 0){
 					/* apply experimentation bonus*/
 					$current_score->points += $exp_bonus;
 					$current_score->penalties_bonuses .= EXPERIMENTATION_BONUS_ID;
@@ -240,7 +249,7 @@ class ChallengeMonitorController {
 
 			if ($_SESSION['total_attempt_count'] > $attempt_cap){
 				/* apply total attempt penalty*/
-				if(strpos($current_score->penalties_bonuses,TOTAL_ATTEMPT_PENALTY_ID) == false && $attempt_cap_penalty > 0){
+				if(strpos($current_score->penalties_bonuses,TOTAL_ATTEMPT_PENALTY_ID) === false && $attempt_cap_penalty > 0){
 					$current_score->points -= $attempt_cap_penalty;
 					$current_score->penalties_bonuses .= TOTAL_ATTEMPT_PENALTY_ID;
 					$current_score->penalties_bonuses .= ",";
@@ -253,32 +262,32 @@ class ChallengeMonitorController {
 				$t_since_first = 0;
 			if ($t_since_first >= $t_limit){
 				/* apply total time penalty */
-				if(strpos($current_score->penalties_bonuses,TIME_LIMIT_PENALTY_ID) == false && $time_penalty > 0){
+				if(strpos($current_score->penalties_bonuses,TIME_LIMIT_PENALTY_ID) === false && $time_penalty > 0){
 					$current_score->points -= $time_penalty;
 					$current_score->penalties_bonuses .= TIME_LIMIT_PENALTY_ID;
 					$current_score->penalties_bonuses .= ",";
 				}
 			}
-			$diff = $_SERVER["REQUEST_TIME_FLOAT"] - $_SESSION['rps_sec_start'];
-			if ($diff == 1000000){
+			$diff = microtime(true) - $_SESSION['rps_min_start'];
+			$_SESSION['last_attempt_microsecs'] = microtime(true);
+			if ($diff >= MICROSECS_IN_MINUTE){
 				if ($_SESSION['rps_attempt_count'] >= $rps_limit){
-					/* apply requests per second penalty*/
-					if(strpos($current_score->penalties_bonuses,RPS_PENALTY_ID) == false && $rps_penalty > 0){
+					/* apply requests per minute penalty*/
+					if(strpos($current_score->penalties_bonuses,RPS_PENALTY_ID) === false && $rps_penalty > 0){
 						$current_score->points -= $rps_penalty;
 						$current_score->penalties_bonuses .= RPS_PENALTY_ID;
 						$current_score->penalties_bonuses .= ",";
 					}
 				}
-				$_SESSION['rps_sec_start'] = $_SERVER["REQUEST_TIME_FLOAT"];
+				$_SESSION['rps_min_start'] = microtime(true);
 				$_SESSION['rps_attempt_count'] = 0;
 			}else{
 				$_SESSION['rps_attempt_count']++;
 			}
-
 			$ua_check = strpos($banned_user_agents, $_SERVER['HTTP_USER_AGENT']);
 			if ($ua_check != false){
 				/* apply user agent penalty*/
-				if(strpos($current_score->penalties_bonuses,UA_PENALTY_ID) == false && $banned_ua_penalty > 0){
+				if(strpos($current_score->penalties_bonuses,UA_PENALTY_ID) === false && $banned_ua_penalty > 0){
 					$current_score->points -= $banned_ua_penalty;
 					$current_score->penalties_bonuses .= UA_PENALTY_ID;
 					$current_score->penalties_bonuses .= ",";
@@ -290,7 +299,7 @@ class ChallengeMonitorController {
 
 			if (ChallengeAttempts::isChallengeCleared($user_id, $challenge_id, $class_id)){
 				/* apply multiple solutions bonus*/
-				if(strpos($current_score->penalties_bonuses,MULT_SOL_BONUS_ID) == false && $mult_sol_bonus > 0){
+				if(strpos($current_score->penalties_bonuses,MULT_SOL_BONUS_ID) === false && $mult_sol_bonus > 0){
 					$current_score->points += $mult_sol_bonus;
 					$current_score->penalties_bonuses .= MULT_SOL_BONUS_ID;
 					$current_score->penalties_bonuses .= ",";
@@ -301,28 +310,60 @@ class ChallengeMonitorController {
 				$last_db = ChallengeAttempts::getUserLastChallengeAttempt($user_id, $challenge_id, $class_id);
 				$last = date("Y-m-d H:i:s");
 				$total_count = ChallengeAttempts::getUserTriesForChallenge($user_id, $challenge_id, $class_id);
-
-				$t_since_first = strtotime(date("Y-m-d H:i:s")) - strtotime($last_db);
+				false === $total_count?$total_count = 0: $total_count;
+				if($last_db !=false)
+					$t_since_first = strtotime(date("Y-m-d H:i:s")) - strtotime($last_db->time);
+				else
+					$t_since_first = 0;
 
 				if ($t_since_first >= $t_limit){
 					/* apply time limit penalty */
-					if(strpos($current_score->penalties_bonuses,TIME_LIMIT_PENALTY_ID) == false && $time_penalty > 0){
+					if(strpos($current_score->penalties_bonuses,TIME_LIMIT_PENALTY_ID) === false && $time_penalty > 0){
 						$current_score->points -= $time_penalty;
 						$current_score->penalties_bonuses .= TIME_LIMIT_PENALTY_ID;
 						$current_score->penalties_bonuses .= ",";
 					}
 				}
+				$diff = microtime(true) - $_SESSION['rps_min_start'];
+				if ($diff >= MICROSECS_IN_MINUTE){
+					if ($_SESSION['rps_attempt_count'] >= $rps_limit){
+						/* apply requests per second penalty*/
+						if(strpos($current_score->penalties_bonuses,RPS_PENALTY_ID) === false && $rps_penalty > 0){
+							$current_score->points -= $rps_penalty;
+							$current_score->penalties_bonuses .= RPS_PENALTY_ID;
+							$current_score->penalties_bonuses .= ",";
+						}
+					}
+					$_SESSION['rps_min_start'] = microtime(true);
+					$_SESSION['rps_attempt_count'] = 0;
+				}else{
+					/** if user solved it in under a minute
+					 * 	(or not a full minute has  passed since last reset)
+					 */
+					$t_since_last_micro = microtime(true) - $_SESSION['last_attempt_microsecs'];
+						if ($_SESSION['rps_attempt_count'] >= $rps_limit){
+							/* apply requests per second penalty*/
+							if(strpos($current_score->penalties_bonuses,RPS_PENALTY_ID) === false && $rps_penalty > 0){
+								$current_score->points -= $rps_penalty;
+								$current_score->penalties_bonuses .= RPS_PENALTY_ID;
+								$current_score->penalties_bonuses .= ",";
+							}
+						}
+				}
 				if ( 1 + $total_count >= $attempt_cap){
 					/* apply total attempt penalty*/
-					if(strpos($current_score->penalties_bonuses,TOTAL_ATTEMPT_PENALTY_ID) == false && $attempt_cap > 0){
+					if(strpos($current_score->penalties_bonuses,TOTAL_ATTEMPT_PENALTY_ID) === false && $attempt_cap > 0){
 						$current_score->points -= $attempt_cap_penalty;
 						$current_score->penalties_bonuses .= TOTAL_ATTEMPT_PENALTY_ID;
 						$current_score->penalties_bonuses .= ",";
 					}
 				}
-				if(ChallengeAttempts::getCountOfFirstTrySolves($user_id, $class_id) > $first_try_limit){
+				$count_first_try = ChallengeAttempts::getCountOfFirstTrySolves($user_id, $class_id);
+				if($_SESSION['total_attempt_count'] == 0)
+					$count_first_try++;
+				if( $first_try_limit != 0 && $count_first_try >= $first_try_limit){
 					/* apply cheater penalty */
-					if(strpos($current_score->penalties_bonuses,FTS_PENALTY_ID) == false && $fts_penalty > 0){
+					if(strpos($current_score->penalties_bonuses,FTS_PENALTY_ID) === false && $fts_penalty > 0){
 						$current_score->points -= $fts_penalty;
 						$current_score->penalties_bonuses .= FTS_PENALTY_ID;
 						$current_score->penalties_bonuses .= ",";

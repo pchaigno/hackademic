@@ -12,7 +12,6 @@
 			<td style="width:25%"><label>Select Class:</label></td>
 			<td>
 			    <select name="class" style="width:100%">
-				<option value="">Overall</option>
 				{foreach from=$classes item=cls}
 				    <option value="{$cls->id}" {if isset($smarty.get.class) && $cls->id == $smarty.get.class}selected="selected"{/if}>{$cls->name}</option>
 				{/foreach}

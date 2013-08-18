@@ -1,28 +1,28 @@
-<?php 
-/** 
+<?php
+/**
  *    ----------------------------------------------------------------
  *    OWASP Hackademic Challenges Project
  *    ----------------------------------------------------------------
- *    Copyright (C) 2010-2011 
+ *    Copyright (C) 2010-2011
  *   	  Andreas Venieris [venieris@owasp.gr]
  *   	  Anastasios Stasinopoulos [anast@owasp.gr]
  *    ----------------------------------------------------------------
  */
 ?>
 
-<?php 
-	include_once dirname(__FILE__).'/../../../init.php';		
+<?php
+	include_once dirname(__FILE__).'/../../../init.php';
     session_start();
     require_once(HACKADEMIC_PATH."pages/challenge_monitor.php");
 	$name1 = $_POST["name1"];
 	session_start();
 	if ($name1==='Friday13@JasonLives.com' ){
-		$monitor->update(CHALLENGE_SUCCESS);
+		$monitor->update(CHALLENGE_SUCCESS,$_GET);
 		echo "<br><br><br><br><center><font color=Green>Congratulations!</font>";
 		die();
 	}
 	else{
-		$monitor->update(CHALLENGE_FAILURE);
+		$monitor->update(CHALLENGE_FAILURE,$_GET);
 		}
 ?>
 
@@ -45,13 +45,13 @@
 		  <input type="text" name="name1" size="71"></p>
 		  <p>Message</p>
 		  <textarea rows="8" name="name2" cols="99" ></textarea><br>
-		
-		
+
+
 		  <input type="submit" name="submit" value="Send">
-		
+
 		<p><a href="main.htm">Home</a></p>
 	</form>
-	
+
 </body>
 
 </html>
