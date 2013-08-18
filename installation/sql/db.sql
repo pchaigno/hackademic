@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS  articles  (
    ordering  int(10) DEFAULT '0',
    is_published  int(1) DEFAULT '1',
   PRIMARY KEY ( id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Dumping data for table  articles
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS  challenges  (
    default_points  int(11) DEFAULT NULL,
    default_duration  int(11) DEFAULT NULL,
   PRIMARY KEY ( id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Dumping data for table  challenges
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS  challenge_attempts  (
    status  int(11) NOT NULL,
   PRIMARY KEY ( id ),
   KEY  user_id  ( user_id , challenge_id , class_id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=328 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS  challenge_attempt_count  (
    tries  int(11) DEFAULT NULL,
   PRIMARY KEY ( id ),
   UNIQUE KEY  composite_key  ( user_id , challenge_id , class_id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=323 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS  classes  (
    date_created  datetime NOT NULL,
    archive  int(1) DEFAULT '0',
   PRIMARY KEY ( id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Dumping data for table  classes
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS  class_challenges  (
    class_id  int(11) NOT NULL,
    date_created  datetime NOT NULL,
   PRIMARY KEY ( id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Dumping data for table  class_challenges
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS  class_memberships  (
    date_created  datetime NOT NULL,
   PRIMARY KEY ( user_id , class_id ),
   UNIQUE KEY  id  ( id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS  scoring_rule  (
    penalty_for_many_first_try_solves  int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY ( id ),
   KEY  challenge_id  ( challenge_id , class_id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
 -- Dumping data for table  scoring_rule
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS  users  (
    token  int(10) DEFAULT '0',
   PRIMARY KEY ( username ),
   UNIQUE KEY  id  ( id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 -- --------------------------------------------------------
 
 --
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS  user_has_challenge_token  (
    challenge_id  varchar(512) NOT NULL,
    token  varchar(256) NOT NULL,
   PRIMARY KEY ( id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -256,4 +256,4 @@ CREATE TABLE IF NOT EXISTS  user_score  (
    penalties_bonuses  longtext CHARACTER SET ascii COLLATE ascii_bin,
   PRIMARY KEY ( id ),
   KEY  user_id  ( user_id , challenge_id , class_id )
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=62 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
