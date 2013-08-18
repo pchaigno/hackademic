@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS  articles  (
 --
 
 INSERT INTO  articles  ( title ,  content ,  date_posted ,  created_by ,  last_modified ,  last_modified_by ,  ordering ,  is_published ) VALUES
-('Welcome to Hackademic v0.9!', '<p><img src="http://www.techtoweb.com/wp-content/uploads/2012/12/owasp-security.png" alt="owasp logo" width="840" height="188" /></p>\r\n<p>&nbsp;</p>\r\n<p>Thank you for installling and using the Hackademic challenges project.</p>\r\n<p>You can find our code on github <a href="https://github.com/Hackademic/hackademic">here</a>, for any problems or support, please open an issue on our github repository.</p>\r\n<p>&nbsp;</p>\r\n<p>Hackademic is a FOSS project under the OWASP umbrela organization.</p>', '2013-08-18 00:00:17', 'admin', '2013-08-18 00:04:27', 'admin', 0, 1);
+('Welcome to Hackademic v0.9!', '<p><img width=\"840\" height=\"188\" logo\"=\" alt=\"owasp\" src=\"http://www.techtoweb.com/wp-content/uploads/2012/12/owasp-security.png\"></p>  <p>Thank you for installling and using the Hackademic challenges project.</p> <p>You can find our code on github<a href=\"https://github.com/Hackademic/hackademic\">here</a>, for any problems or support, please open an issue on our github repository.</p><p>Hackademic is a FOSS project under the OWASP umbrela organization.</p>', '2013-08-18 00:00:17', 'admin', '2013-08-18 00:04:27', 'admin', 0, 1);
 
 -- --------------------------------------------------------
 
