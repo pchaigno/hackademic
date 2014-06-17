@@ -22,6 +22,9 @@ This is a simple challenge template to illustrate the only two constraints of an
     &lt;description&gt;
 	Insert some text describing the scenario of the challenge(what the users are supposed to do and if there is any fictional story)
     &lt;/description&gt;
+    &lt;congratulation_page&gt;
+    Insert some text giving more information on the challenge, on how to prevent the flaw and on where to find more information.
+    &lt;/congratulation_page&gt;
     &lt;level&gt;
 	Either an interger from 1  to 10 with 1 being the easiest , or one of beginner, intermediate, advanced , hide_yo_wife, bad1d3a
 	The level will be the max points a user can get.

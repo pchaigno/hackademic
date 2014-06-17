@@ -91,6 +91,14 @@ tinyMCE.init({
                             <textarea name="description" style="width:100%">{$cached->description}</textarea><br/><br/>
                         </td>
                     </tr>
+                    <tr>
+                        <td><label for="congratulation_page">Congratulation page's text</label></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <textarea name="congratulation_page" style="width:100%">{$cached->congratulation_page}</textarea><br/><br/>
+                        </td>
+                    </tr>
                     
                     <tr>
                         <td>

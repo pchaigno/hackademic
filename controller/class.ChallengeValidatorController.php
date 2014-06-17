@@ -71,6 +71,7 @@ class ChallengeValidatorController {
 
 		if($valid) {
 			$this->monitor->update(CHALLENGE_SUCCESS);
+			header('Location: '.SOURCE_ROOT_PATH.'?url=congratulation&id='.$_SESSION['chid']);
 		} else {
 			$this->monitor->update(CHALLENGE_FAILURE);
 		}

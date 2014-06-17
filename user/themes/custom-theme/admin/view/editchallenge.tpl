@@ -60,6 +60,14 @@ tinyMCE.init({
                     <textarea name="description" style="width:100%">{$challenge->description}</textarea>
                 </td>
             </tr>
+		<tr>
+			<td><label for="congratulation_page">Congratulation page's text</label></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<textarea name="congratulation_page" style="width:100%">{$challenge->congratulation_page}</textarea>
+			</td>
+		</tr>
 		
 		
 		<tr>
