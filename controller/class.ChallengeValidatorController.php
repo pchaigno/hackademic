@@ -78,4 +78,11 @@ class ChallengeValidatorController {
 
 		return $valid;
 	}
+
+	/**
+	 * Record a failed attempt to solve the challenge in the monitor.
+	 */
+	public function failChallenge() {
+		$this->monitor->update(CHALLENGE_FAILURE);
+	}
 }
