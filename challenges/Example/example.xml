@@ -8,6 +8,8 @@
     <description>
 	Insert some text describing the scenario of the challenge(what the users are supposed to do and if there is any fictional story)
     </description>
+    <congratulation_page>
+    </congratulation_page>
     <level>
 	Either an interger from 1  to 10 with 1 being the easiest , or one of beginner, intermediate, advanced , hide_yo_wife
 	The level will be the max points a user can get.

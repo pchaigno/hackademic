@@ -40,6 +40,7 @@ class Challenge {
 	public $date_posted;
 	public $pkg_name;
 	public $description;
+	public $congratulation_page;
 	public $author;
 	public $category;
 	public $visibility;

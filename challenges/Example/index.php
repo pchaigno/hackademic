@@ -22,6 +22,9 @@ This is a simple challenge template to illustrate the only two constraints of an
     &lt;description&gt;
 	Insert some text describing the scenario of the challenge(what the users are supposed to do and if there is any fictional story)
     &lt;/description&gt;
+    &lt;congratulation_page&gt;
+    Insert some text giving more information on the challenge, on how to prevent the flaw and on where to find more information.
+    &lt;/congratulation_page&gt;
     &lt;level&gt;
 	Either an interger from 1  to 10 with 1 being the easiest , or one of beginner, intermediate, advanced , hide_yo_wife, bad1d3a
 	The level will be the max points a user can get.
@@ -41,11 +44,14 @@ This is a simple challenge template to illustrate the only two constraints of an
 <pre>
 2. In order to update a user's score in the hackademic database one must include the following
 	This include (once the session has started)
-	<code>require_once($_SESSION['hackademic_path']."pages/challenge_monitor.php");</code>
-	The following on challenge success
-	<code>$monitor->update(CHALLENGE_SUCCESS);</code>
-	And the following for every challenge failure
-	<code>$monitor->update(CHALLENGE_FAILURE);</code>
+	<code>require_once($_SESSION['hackademic_path']."controller/class.ChallengeValidatorController.php");</code>
+	The following to create a challenge validator
+	<code>
+		$solution = 'secret_password';
+		$validator = new ChallengeValidatorController($solution);
+	</code>
+	And the following to verify a solution submitted by an user
+	<code>if($validator->validateSolution($solution)) {</code>
 Simple?
 Enjoy
 

@@ -26,6 +26,8 @@
 	<p>Good Luck!</p>
 	]]>
     </description>
+    <congratulation_page>
+    </congratulation_page>
     <level>hide_yo_wife</level>
 	<duration>3600</duration>
 </challenge>

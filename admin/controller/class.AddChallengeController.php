@@ -45,6 +45,7 @@ class AddChallengeController extends HackademicBackendController {
 	public $level;
 	public $duration;
 	public $description;
+	public $congratulation_page;
 
   private static $action_type = 'add_challenge';
 
@@ -96,7 +97,7 @@ class AddChallengeController extends HackademicBackendController {
       $xml = simplexml_load_file($target."$name".".xml");
 
 	    if ( !isset($xml->title) || !isset($xml->author)|| !isset($xml->description)|| !isset($xml->category)||
-		 !isset($xml->level)|| !isset($xml->duration)){
+			!isset($xml->level) || !isset($xml->duration) || !isset($xml->congratulation_page)) {
         $this->addErrorMessage("The XML file is not valid.");
         self::rrmdir(HACKADEMIC_PATH."challenges/".$name);
         return false;
@@ -106,6 +107,7 @@ class AddChallengeController extends HackademicBackendController {
         'title' => Utils::sanitizeInput($xml->title),
         'author' => Utils::sanitizeInput($xml->author),
         'description' => $xml->description,//Todo make sure its only html here and no javascript or other possibly malicious stuff
+        'congratulation_page' => $xml->congratulation_page,
         'category' => Utils::sanitizeInput($xml->category),
         'level' => Utils::sanitizeInput($xml->level),
         'duration' => Utils::sanitizeInput($xml->duration)
@@ -134,6 +136,9 @@ class AddChallengeController extends HackademicBackendController {
       } elseif ($_POST['description']=='') {
         $e_msg = "Description should not be empty";
         $error = true;
+      } elseif ($_POST['congratulation_page'] == '') {
+        $e_msg = "Congratulation page's text should not be empty";
+        $error = true;
       } elseif ($_POST['authors']=='') {
         $e_msg = "Authors field should not be empty";
         $error = true;
@@ -150,6 +155,7 @@ class AddChallengeController extends HackademicBackendController {
         $array = array (
             'title' => Utils::sanitizeInput($_POST['title']),
             'description' => $_POST['description'],
+            'congratulation_page' => $_POST['congratulation_page'],
             'authors' => Utils::sanitizeInput($_POST['authors']),
             'category' => Utils::sanitizeInput($_POST['category']),
             'level' => Utils::sanitizeInput($_POST['level']),
@@ -218,6 +224,7 @@ class AddChallengeController extends HackademicBackendController {
           $challenge->title = $data['title'];
           $challenge->pkg_name = $pkg_name;
           $challenge->description = $data['description'];
+          $challenge->congratulation_page = $data['congratulation_page'];
           $challenge->author = $data['author'];
           $challenge->category = $data['category'];
           $challenge->date_posted = date("Y-m-d H-i-s");
@@ -239,6 +246,9 @@ class AddChallengeController extends HackademicBackendController {
 		if(isset($_POST['description'])) {
       $this->description = $_POST['description'];
     }
+		if(isset($_POST['congratulation_page'])) {
+			$this->congratulation_page = $_POST['congratulation_page'];
+		}
 		if(isset($_POST['authors'])) {
       $this->authors = Utils::sanitizeInput($_POST['authors']);
     }
